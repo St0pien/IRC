@@ -1,6 +1,20 @@
 export default class App {
     constructor(msgs, input) {
         this.messages = document.querySelector(msgs);
+        this.container = this.messages.querySelector('.overview');
+        this.container.addEventListener('touchmove', e => e.preventDefault());
+        $(msgs).tinyscrollbar();
+        this.scrollbar = $(msgs).data("plugin_tinyscrollbar");
+        this.checkEnd = () => {
+            if (this.top <= this.scrollbar.contentPosition) {
+                document.querySelector('.viewport').style.height = '98%';
+                this.scrollbar.update('bottom');
+            } else {
+                document.querySelector('.viewport').style.height = '100%';
+            }
+        };
+        $(msgs).bind('move', this.checkEnd);
+
         this.input = document.querySelector(input);
 
         this.text = this.input.querySelector('input');
@@ -42,7 +56,7 @@ export default class App {
                 msg.classList.add('my');
             }
 
-            const content = document.createElement('div');
+            const content = document.createElement('p');
             content.classList.add('text');
             const user = document.createElement('div');
             user.classList.add('user');
@@ -57,9 +71,10 @@ export default class App {
             msg.appendChild(content);
             content.style.backgroundColor = users[nick];
             msg.style.color = users[nick];
-            this.messages.appendChild(msg);
-
-            this.messages.scrollTop = this.messages.scrollHeight;
+            this.container.appendChild(msg);
+            this.scrollbar.update("bottom");
+            this.top = this.scrollbar.contentPosition;
+            this.checkEnd();
 
             $('.text').emoticonize({ animate: false });
         });
